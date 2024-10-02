@@ -4,8 +4,7 @@ import sys
 import typer
 
 
-def main(require: str = typer.Option('', case_sensitive=False),
-         exclude: str = typer.Option('', case_sensitive=False),
+def main(exclude: str = typer.Option('', case_sensitive=False),
          nail: str = typer.Option('.....', case_sensitive=False),
          deny: tuple[str, str, str, str, str] = typer.Option(tuple('.....'), case_sensitive=False)) -> None:
 
@@ -13,12 +12,13 @@ def main(require: str = typer.Option('', case_sensitive=False),
         wordles = set(fp.read().strip().split())
 
     excluded = set(exclude.lower())
-    required = set(require.lower()) - excluded
     nailed = (nail + '.....')[:5].lower()
 
     nailed = [('.' if ch in excluded else ch) for ch in nailed]
-    required.update({ch for ch in nailed if ch != '.'})
+    required = {ch for ch in nailed if ch != '.'}
+
     denied = [(s.lower() if nailed[i] == '.' else '.') for i, s in enumerate(deny)]
+    required.update(set(''.join(ch for ch in denied if ch != '.')))
 
     print(f'{excluded=}')
     print(f'{required=}')
