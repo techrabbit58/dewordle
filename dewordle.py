@@ -4,9 +4,17 @@ import sys
 import typer
 
 
-def main(exclude: str = typer.Option('', case_sensitive=False),
-         nail: str = typer.Option('.....', case_sensitive=False),
-         deny: tuple[str, str, str, str, str] = typer.Option(tuple('.....'), case_sensitive=False)) -> None:
+def main(
+        exclude: str = typer.Option(
+            '', case_sensitive=False,
+            help='exclude words contining these letters'),
+        nail: str = typer.Option(
+            '.....', case_sensitive=False,
+            help='letters that are required exactly at that position'),
+        deny: tuple[str, str, str, str, str] = typer.Option(
+            tuple('.....'), case_sensitive=False,
+            help='do not include words with these letters in that positions')) -> None:
+    """Help solvving a german "wordle" puzzle by filtering a list of fiveletter words."""
 
     with open(pathlib.Path(sys.argv[0]).cwd() / 'wordles.txt', encoding='utf-8') as fp:
         wordles = set(fp.read().strip().split())
