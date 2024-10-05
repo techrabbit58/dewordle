@@ -6,7 +6,7 @@ import requests
 wordlist_url = 'https://raw.githubusercontent.com/davidak/wortliste/master/wortliste.txt'
 
 prog_description = textwrap.dedent(f"""
-Extract all five letter words from the input at {wordlist_url}.
+Extract all fiveletter words from the input at {wordlist_url}.
 Create an output file with the extracted words, one line per word,
 with all words normalized to lowercase.
 """).strip()
@@ -61,4 +61,4 @@ def parse_args(prog: str) -> argparse.Namespace:
 
 
 if __name__ == '__main__':
-    main('extract_five_letter_words')
+    main('extract_fiveletter_words')
