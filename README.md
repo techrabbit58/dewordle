@@ -36,7 +36,7 @@ languages.
 The dewordle program does not yet provide a switch
 to work with different word lists.
 
---
+---
 
 [requests]: https://pypi.org/project/requests/
 [typer]: https://pypi.org/project/typer/
