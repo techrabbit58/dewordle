@@ -2,6 +2,7 @@ import pathlib
 import sys
 
 import typer
+from rich import print, get_console
 
 
 def main(
@@ -14,7 +15,7 @@ def main(
         deny: tuple[str, str, str, str, str] = typer.Option(
             tuple('.....'), case_sensitive=False,
             help='do not include words with these letters in that positions')) -> None:
-    """Help solvving a german "wordle" puzzle by filtering a list of fiveletter words."""
+    """Help solving a german "wordle" puzzle by filtering a list of fiveletter words."""
 
     with open(pathlib.Path(sys.argv[0]).cwd() / 'wordles.txt', encoding='utf-8') as fp:
         wordles = set(fp.read().strip().split())
@@ -64,7 +65,17 @@ def main(
             candidates.add(word)
     wordles = candidates
 
-    print(sorted(wordles))
+    console = get_console()
+    width = console.width + 1
+
+    line = []
+    for word in sorted(wordles):
+        if (len(line) + 1) * 6 < width:
+            line.append(word)
+        else:
+            console.print(' '.join(line), style='cyan')
+            line = []
+    console.print(' '.join(line), style='cyan')
 
 
 if __name__ == '__main__':
