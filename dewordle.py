@@ -6,13 +6,13 @@ from rich import print, get_console
 
 
 def main(
-        exclude: str = typer.Option(
+        grey: str = typer.Option(
             '', case_sensitive=False,
             help='exclude words contining these letters'),
-        nail: str = typer.Option(
+        green: str = typer.Option(
             '.....', case_sensitive=False,
             help='letters that are required exactly at that position'),
-        deny: tuple[str, str, str, str, str] = typer.Option(
+        yellow: tuple[str, str, str, str, str] = typer.Option(
             tuple('.....'), case_sensitive=False,
             help='do not include words with these letters in that positions')) -> None:
     """Help solving a german "wordle" puzzle by filtering a list of fiveletter words."""
@@ -20,13 +20,13 @@ def main(
     with open(pathlib.Path(sys.argv[0]).cwd() / 'wordles.txt', encoding='utf-8') as fp:
         wordles = set(fp.read().strip().split())
 
-    excluded = set(exclude.lower())
-    nailed = (nail + '.....')[:5].lower()
+    excluded = set(grey.lower())
+    nailed = (green + '.....')[:5].lower()
 
     nailed = [('.' if ch in excluded else ch) for ch in nailed]
     required = {ch for ch in nailed if ch != '.'}
 
-    denied = [(s.lower() if nailed[i] == '.' else '.') for i, s in enumerate(deny)]
+    denied = [(s.lower() if nailed[i] == '.' else '.') for i, s in enumerate(yellow)]
     required.update(set(''.join(ch for ch in denied if ch != '.')))
 
     print(f'{excluded=}')
