@@ -3,21 +3,25 @@ from functools import partial
 
 SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'
 
+
 def main(prog: str) -> None:
+    colors = 'white grey yellow lime'.split()
     root = tk.Tk()
 
     root.title(prog)
+    root.configure(bg='lightblue')
 
     symbol_btns = []
-    colors = ['red'] * len(SYMBOLS)
+    color = 1
 
     def on_click(btn: int) -> None:
-        color = colors[btn]
-        symbol_btns[btn].configure(bg=color)
+        nonlocal color
+        symbol_btns[btn].configure(bg=colors[color])
+        color = (color + 1) % len(colors)
 
-    btn_args = dict(font='Arial 16 bold', width=2)
+    btn_args = dict(font='Arial 16 bold', width=2, bg=colors[0])
 
-    line1 = tk.Frame(root, padx=10, pady=10)
+    line1 = tk.Frame(root, padx=10, pady=10, bg='lightblue')
     line1.pack()
 
     for i in range(9):
@@ -25,7 +29,7 @@ def main(prog: str) -> None:
         symbol_btns.append(tk.Button(line1, text=SYMBOLS[n], command=partial(on_click, n), **btn_args))
         symbol_btns[-1].grid(row=0, column=i)
 
-    line2 = tk.Frame(root, padx=10)
+    line2 = tk.Frame(root, padx=10, bg='lightblue')
     line2.pack()
 
     for i in range(8):
@@ -33,7 +37,7 @@ def main(prog: str) -> None:
         symbol_btns.append(tk.Button(line2, text=SYMBOLS[n], command=partial(on_click, n), **btn_args))
         symbol_btns[-1].grid(row=0, column=i)
 
-    line3 = tk.Frame(root, padx=10, pady=10)
+    line3 = tk.Frame(root, padx=10, pady=10, bg='lightblue')
     line3.pack()
 
     for i in range(9):
@@ -42,7 +46,7 @@ def main(prog: str) -> None:
         symbol_btns[-1].grid(row=0, column=i)
 
     tk.Button(root, text='Quit', padx=20, pady=10, command=root.destroy, font='bold').pack()
-    tk.Label(root).pack()
+    tk.Label(root, bg='lightblue').pack()
 
     root.mainloop()
 
