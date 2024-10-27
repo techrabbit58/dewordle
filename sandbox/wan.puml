@@ -1,0 +1,25 @@
+@startuml
+
+    rectangle Köln <<head office>>
+    rectangle Düsseldorf <<branch office>>
+    rectangle Essen <<branch office>>
+    rectangle Gelsenkirchen <<agency>>
+    rectangle Bonn <<agency>>
+    rectangle Ratingen <<data center>>
+    rectangle Wuppertal <<agency>>
+    rectangle "Wanne-Eickel" <<agency>> as we
+
+    Köln -right- Essen
+    Köln -- Düsseldorf
+    Essen -- Düsseldorf
+    Köln -up- Bonn
+    Essen -up- we
+    Essen -up-Gelsenkirchen
+    Essen -right- Wuppertal
+
+    Essen -- Ratingen
+    Köln -- Ratingen
+    Ratingen -- Düsseldorf
+
+
+@enduml
