@@ -2,6 +2,8 @@ import random
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 
+SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'
+
 
 class App(tk.Tk):
     def __init__(self, title: str) -> None:
@@ -46,7 +48,7 @@ class App(tk.Tk):
             green_entries.append(
                 ttk.Combobox(
                     f_green,
-                    values=tuple('.abcdefghijklmnopqrstuvwxyz'),
+                    values=tuple('.' + SYMBOLS),
                     width=9,
                     state='readonly',
                     textvariable=self.green_letters[i],
@@ -88,7 +90,7 @@ class App(tk.Tk):
         self.t_words.delete('1.0', tk.END)
 
         for _ in range(500):
-            word = ''.join(random.sample('abcdefghijklmnopqrstuvwxyz', 5))
+            word = ''.join(random.sample(SYMBOLS, 5))
             self.t_words.insert(tk.END, word.ljust(6, ' '))
 
         self.t_words['state'] = original_state
