@@ -25,7 +25,7 @@ class App(tk.Tk):
 
         yellow_entries = []
         for i in range(5):
-            yellow_entries.append(ttk.Entry(f_yellow, width=18))
+            yellow_entries.append(ttk.Entry(f_yellow, width=10))
             yellow_entries[i].pack(side=tk.LEFT, fill=tk.X, expand=True, **appearance)
 
         l_green = ttk.Label(self, text='Green Letters')
@@ -36,14 +36,14 @@ class App(tk.Tk):
 
         green_entries = []
         for i in range(5):
-            green_entries.append(ttk.Combobox(f_green, width=18))
+            green_entries.append(ttk.Combobox(f_green, width=13))
             green_entries[i].pack(side=tk.LEFT, fill=tk.X, expand=True, **appearance)
 
         l_words = ttk.Label(self, text='Proposed Wordle Words')
         l_words.pack(side=tk.TOP, **appearance)
 
         t_words = scrolledtext.ScrolledText(
-            self, height=10, width=80, wrap=tk.WORD, font=('TkFixedFont', 11), spacing2=3)
+            self, height=10, width=60, wrap=tk.WORD, font=('TkFixedFont', 11), spacing2=3)
         t_words.pack(fill=tk.X, **appearance)
         for word in font.names():
             t_words.insert(tk.END, word.ljust(20, ' '))
