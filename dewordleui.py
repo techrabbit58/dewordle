@@ -18,8 +18,8 @@ class App(tk.Tk):
         l_grey.pack(**common_conf)
 
         self.grey_letters = tk.StringVar()
-        self.e_grey = ttk.Entry(self, textvariable=self.grey_letters, width=30, font=('Courier', 11))
-        self.e_grey.pack(fill=tk.X, ipady=3, **common_conf)
+        e_grey = ttk.Entry(self, textvariable=self.grey_letters, width=30, font=('Courier', 11))
+        e_grey.pack(fill=tk.X, ipady=3, **common_conf)
 
         l_yellow = ttk.Label(self, text='Yellow Letters')
         l_yellow.pack(**common_conf)
@@ -73,6 +73,8 @@ class App(tk.Tk):
         rootstyle.configure('TLabel', font=('TkDefaultFont', 11))
         rootstyle.configure('TButton', font=('TkDefaultFont', 11))
 
+        self.default_widget = e_grey
+
         self.reset_dewordle()
 
     def reset_dewordle(self) -> None:
@@ -94,7 +96,7 @@ class App(tk.Tk):
 
         self.t_words['state'] = original_state
 
-        self.e_grey.focus()
+        self.default_widget.focus()
 
 
 if __name__ == '__main__':
