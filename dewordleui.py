@@ -1,6 +1,7 @@
 import random
+import textwrap
 import tkinter as tk
-from tkinter import ttk, scrolledtext
+from tkinter import ttk, scrolledtext, messagebox
 
 SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -14,11 +15,21 @@ class App(tk.Tk):
 
         common_conf = dict(padx=5, pady=5, anchor=tk.W)
 
+        entry_validator = (self.register(self.validate_grey_and_yellow), '%P')
+        entry_notvalid = (self.register(self.entry_not_valid),)
+
         l_grey = ttk.Label(self, text='Grey Letters')
         l_grey.pack(**common_conf)
 
         self.grey_letters = tk.StringVar()
-        e_grey = ttk.Entry(self, textvariable=self.grey_letters, width=30, font=('Courier', 11))
+        e_grey = ttk.Entry(
+            self,
+            textvariable=self.grey_letters,
+            width=30,
+            font=('Courier', 11),
+            validate='key',
+            validatecommand=entry_validator,
+            invalidcommand=entry_notvalid)
         e_grey.pack(fill=tk.X, ipady=3, **common_conf)
 
         l_yellow = ttk.Label(self, text='Yellow Letters')
@@ -32,7 +43,14 @@ class App(tk.Tk):
         for i in range(5):
             self.yellow_letters.append(tk.StringVar())
             yellow_entries.append(
-                ttk.Entry(f_yellow, width=9, textvariable=self.yellow_letters[i], font=('Courier', 11)))
+                ttk.Entry(
+                    f_yellow,
+                    width=9,
+                    textvariable=self.yellow_letters[i],
+                    font=('Courier', 11),
+                    validate='key',
+                    validatecommand=entry_validator,
+                    invalidcommand=entry_notvalid))
             yellow_entries[i].pack(side=tk.LEFT, fill=tk.X, ipady=3, expand=True, **common_conf)
 
         l_green = ttk.Label(self, text='Green Letters')
@@ -63,7 +81,7 @@ class App(tk.Tk):
         self.t_words.pack(fill=tk.X, **common_conf)
         self.t_words['state'] = tk.DISABLED
 
-        b_reset = ttk.Button(self, text='Reset', command = self.reset_dewordle)
+        b_reset = ttk.Button(self, text='Reset', command=self.reset_dewordle)
         b_reset.pack(side=tk.LEFT, **common_conf)
 
         b_quit = ttk.Button(self, text='Quit', command=self.destroy)
@@ -97,6 +115,23 @@ class App(tk.Tk):
         self.t_words['state'] = original_state
 
         self.default_widget.focus()
+
+    @staticmethod
+    def validate_grey_and_yellow(value: str) -> bool:
+        chars = set(value)
+        if len(chars) != len(value):
+            return False
+        for c in value:
+            if c not in SYMBOLS:
+                return False
+        return True
+
+    @staticmethod
+    def entry_not_valid() -> None:
+        messagebox.showinfo('Bad Entry', message=textwrap.dedent(f"""
+        You may only enter valid symbols out of the set "{SYMBOLS}".
+        Every symbol may only appear once.
+        """))
 
 
 if __name__ == '__main__':
