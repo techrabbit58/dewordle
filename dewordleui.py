@@ -12,17 +12,17 @@ class App(tk.Tk):
         self.resizable(width=False, height=False)
         self.title(title)
 
-        appearance = dict(padx=5, pady=5, anchor=tk.W)
+        common_conf = dict(padx=5, pady=5, anchor=tk.W)
 
         l_grey = ttk.Label(self, text='Grey Letters')
-        l_grey.pack(**appearance)
+        l_grey.pack(**common_conf)
 
         self.grey_letters = tk.StringVar()
-        e_grey = ttk.Entry(self, textvariable=self.grey_letters, width=30, font=('Courier', 11))
-        e_grey.pack(fill=tk.X, **appearance)
+        self.e_grey = ttk.Entry(self, textvariable=self.grey_letters, width=30, font=('Courier', 11))
+        self.e_grey.pack(fill=tk.X, ipady=3, **common_conf)
 
         l_yellow = ttk.Label(self, text='Yellow Letters')
-        l_yellow.pack(**appearance)
+        l_yellow.pack(**common_conf)
 
         f_yellow = ttk.Frame(self)
         f_yellow.pack(expand=True, fill=tk.X)
@@ -33,10 +33,10 @@ class App(tk.Tk):
             self.yellow_letters.append(tk.StringVar())
             yellow_entries.append(
                 ttk.Entry(f_yellow, width=9, textvariable=self.yellow_letters[i], font=('Courier', 11)))
-            yellow_entries[i].pack(side=tk.LEFT, fill=tk.X, expand=True, **appearance)
+            yellow_entries[i].pack(side=tk.LEFT, fill=tk.X, ipady=3, expand=True, **common_conf)
 
         l_green = ttk.Label(self, text='Green Letters')
-        l_green.pack(**appearance)
+        l_green.pack(**common_conf)
 
         f_green = ttk.Frame(self)
         f_green.pack()
@@ -49,32 +49,31 @@ class App(tk.Tk):
                 ttk.Combobox(
                     f_green,
                     values=tuple('.' + SYMBOLS),
-                    width=9,
+                    width=10,
                     state='readonly',
                     textvariable=self.green_letters[i],
                     font=('Courier', 11)))
-            green_entries[i].pack(side=tk.LEFT, fill=tk.X, expand=True, **appearance)
+            green_entries[i].pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=3, **common_conf)
 
         l_words = ttk.Label(self, text='Proposed Wordle Words')
-        l_words.pack(side=tk.TOP, **appearance)
+        l_words.pack(side=tk.TOP, **common_conf)
 
         self.t_words = scrolledtext.ScrolledText(
-            self, height=10, width=60, wrap=tk.WORD, font=('Courier', 11), spacing2=3)
-        self.t_words.pack(fill=tk.X, **appearance)
+            self, height=10, width=60, wrap=tk.WORD, font=('Courier', 11), spacing2=4)
+        self.t_words.pack(fill=tk.X, **common_conf)
         self.t_words['state'] = tk.DISABLED
 
         b_reset = ttk.Button(self, text='Reset', command = self.reset_dewordle)
-        b_reset.pack(side=tk.LEFT, **appearance)
+        b_reset.pack(side=tk.LEFT, **common_conf)
 
         b_quit = ttk.Button(self, text='Quit', command=self.destroy)
-        b_quit.pack(**appearance)
+        b_quit.pack(**common_conf)
 
         rootstyle = ttk.Style(self)
         rootstyle.configure('TLabel', font=('TkDefaultFont', 11))
         rootstyle.configure('TButton', font=('TkDefaultFont', 11))
 
         self.reset_dewordle()
-        b_quit.focus()
 
     def reset_dewordle(self) -> None:
         self.grey_letters.set('')
@@ -94,6 +93,8 @@ class App(tk.Tk):
             self.t_words.insert(tk.END, word.ljust(6, ' '))
 
         self.t_words['state'] = original_state
+
+        self.e_grey.focus()
 
 
 if __name__ == '__main__':
