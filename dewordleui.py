@@ -15,8 +15,8 @@ class App(tk.Tk):
 
         common_conf = dict(padx=5, pady=5, anchor=tk.W)
 
-        entry_validator = (self.register(self.validate_grey_and_yellow), '%P')
-        entry_notvalid = (self.register(self.entry_not_valid),)
+        grey_validator = (self.register(self.validate_grey_or_yellow), '%P')
+        letter_is_not_valid = (self.register(self.entry_not_valid),)
 
         l_grey = ttk.Label(self, text='Grey Letters')
         l_grey.pack(**common_conf)
@@ -28,8 +28,8 @@ class App(tk.Tk):
             width=30,
             font=('Courier', 11),
             validate='key',
-            validatecommand=entry_validator,
-            invalidcommand=entry_notvalid)
+            validatecommand=grey_validator,
+            invalidcommand=letter_is_not_valid)
         e_grey.pack(fill=tk.X, ipady=3, **common_conf)
 
         l_yellow = ttk.Label(self, text='Yellow Letters')
@@ -49,8 +49,8 @@ class App(tk.Tk):
                     textvariable=self.yellow_letters[i],
                     font=('Courier', 11),
                     validate='key',
-                    validatecommand=entry_validator,
-                    invalidcommand=entry_notvalid))
+                    validatecommand=grey_validator,
+                    invalidcommand=letter_is_not_valid))
             yellow_entries[i].pack(side=tk.LEFT, fill=tk.X, ipady=3, expand=True, **common_conf)
 
         l_green = ttk.Label(self, text='Green Letters')
@@ -117,7 +117,7 @@ class App(tk.Tk):
         self.default_widget.focus()
 
     @staticmethod
-    def validate_grey_and_yellow(value: str) -> bool:
+    def validate_grey_or_yellow(value: str) -> bool:
         chars = set(value)
         if len(chars) != len(value):
             return False
@@ -131,6 +131,7 @@ class App(tk.Tk):
         messagebox.showinfo('Bad Entry', message=textwrap.dedent(f"""
         You may only enter valid symbols out of the set "{SYMBOLS}".
         Every symbol may only appear once.
+        Grey letters cannot be used as yellow or green choices at the same time.
         """))
 
 
