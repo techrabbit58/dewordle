@@ -1,3 +1,4 @@
+import functools
 import random
 import textwrap
 import tkinter as tk
@@ -15,8 +16,9 @@ class App(tk.Tk):
 
         common_conf = dict(padx=5, pady=5, anchor=tk.W)
 
-        grey_validator = (self.register(self.validate_grey_or_yellow), '%P')
-        letter_is_not_valid = (self.register(self.entry_not_valid),)
+        grey_validator = (self.register(self.validate_grey), '%P')
+        yellow_validator = (self.register(self.validate_yellow), '%P')
+        is_not_valid = (self.register(self.entry_not_valid),)
 
         l_grey = ttk.Label(self, text='Grey Letters')
         l_grey.pack(**common_conf)
@@ -29,7 +31,7 @@ class App(tk.Tk):
             font=('Courier', 11),
             validate='key',
             validatecommand=grey_validator,
-            invalidcommand=letter_is_not_valid)
+            invalidcommand=is_not_valid)
         e_grey.pack(fill=tk.X, ipady=3, **common_conf)
 
         l_yellow = ttk.Label(self, text='Yellow Letters')
@@ -49,8 +51,8 @@ class App(tk.Tk):
                     textvariable=self.yellow_letters[i],
                     font=('Courier', 11),
                     validate='key',
-                    validatecommand=grey_validator,
-                    invalidcommand=letter_is_not_valid))
+                    validatecommand=yellow_validator,
+                    invalidcommand=is_not_valid))
             yellow_entries[i].pack(side=tk.LEFT, fill=tk.X, ipady=3, expand=True, **common_conf)
 
         l_green = ttk.Label(self, text='Green Letters')
@@ -72,6 +74,9 @@ class App(tk.Tk):
                     textvariable=self.green_letters[i],
                     font=('Courier', 11)))
             green_entries[i].pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=3, **common_conf)
+            green_entries[i].bind(
+                '<<ComboboxSelected>>',
+                functools.partial(self.validate_green, green_entries[i]))
 
         l_words = ttk.Label(self, text='Proposed Wordle Words')
         l_words.pack(side=tk.TOP, **common_conf)
@@ -117,7 +122,7 @@ class App(tk.Tk):
         self.default_widget.focus()
 
     @staticmethod
-    def validate_grey_or_yellow(value: str) -> bool:
+    def validate_symbols(value: str) -> bool:
         chars = set(value)
         if len(chars) != len(value):
             return False
@@ -125,6 +130,33 @@ class App(tk.Tk):
             if c not in SYMBOLS:
                 return False
         return True
+
+    def validate_grey(self, value: str) -> bool:
+        if self.validate_symbols(value):
+            for var in self.yellow_letters:
+                var.set(''.join(symbol for symbol in var.get() if symbol not in value))
+            for var in self.green_letters:
+                symbol = var.get()
+                var.set('.' if symbol in value else symbol)
+            return True
+        else:
+            return False
+
+    def validate_yellow(self, value: str) -> bool:
+        if self.validate_symbols(value):
+            grey_letters = self.grey_letters.get()
+            for letter in value:
+                if letter in grey_letters:
+                    return False
+            return True
+        else:
+            return False
+
+    def validate_green(self, widget: ttk.Combobox, _) -> None:
+        value = self.getvar(widget['textvariable'])
+        if value in self.grey_letters.get():
+            self.entry_not_valid()
+            self.setvar(widget['textvariable'], '.')
 
     @staticmethod
     def entry_not_valid() -> None:
