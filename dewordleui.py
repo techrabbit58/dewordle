@@ -110,9 +110,11 @@ class App(tk.Tk):
 
         self.default_widget = e_grey
 
+        self.bind('<Return>', self.perform_selection)
+
         self.reset_dewordle()
 
-    def perform_selection(self) -> None:
+    def perform_selection(self, _ = None) -> None:
         grey_letters = set(self.grey_letters.get())
         yellow_letters = [set(letters.get()) for letters in self.yellow_letters]
         green_letters = [letter.get() for letter in self.green_letters]
