@@ -1,15 +1,24 @@
+import contextlib
 import functools
-import random
 import textwrap
 import tkinter as tk
 from tkinter import ttk, scrolledtext, messagebox
 
 SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'
+WORDLES_FILE = 'wordles.txt'
+
+
+@contextlib.contextmanager
+def widget_as_normal(widget):
+    original_state, widget['state'] = widget['state'], tk.NORMAL
+    yield widget
+    widget['state'] = original_state
 
 
 class App(tk.Tk):
     def __init__(self, title: str) -> None:
         super().__init__()
+        self.wordles: list[str] = []
 
         self.resizable(width=False, height=False)
         self.title(title)
@@ -82,15 +91,18 @@ class App(tk.Tk):
         l_words.pack(side=tk.TOP, **common_conf)
 
         self.t_words = scrolledtext.ScrolledText(
-            self, height=10, width=60, wrap=tk.WORD, font=('Courier', 11), spacing2=4)
+            self, height=10, width=60, wrap=tk.WORD, font=('Courier', 11), spacing2=4, spacing3=4)
         self.t_words.pack(fill=tk.X, **common_conf)
         self.t_words['state'] = tk.DISABLED
+
+        b_select = ttk.Button(self, text='Select', command=self.perform_selection)
+        b_select.pack(side=tk.LEFT, **common_conf)
 
         b_reset = ttk.Button(self, text='Reset', command=self.reset_dewordle)
         b_reset.pack(side=tk.LEFT, **common_conf)
 
         b_quit = ttk.Button(self, text='Quit', command=self.destroy)
-        b_quit.pack(**common_conf)
+        b_quit.pack(side=tk.LEFT, **common_conf)
 
         rootstyle = ttk.Style(self)
         rootstyle.configure('TLabel', font=('TkDefaultFont', 11))
@@ -99,6 +111,31 @@ class App(tk.Tk):
         self.default_widget = e_grey
 
         self.reset_dewordle()
+
+    def perform_selection(self) -> None:
+        grey_letters = set(self.grey_letters.get())
+        yellow_letters = [set(letters.get()) for letters in self.yellow_letters]
+        green_letters = [letter.get() for letter in self.green_letters]
+        with widget_as_normal(self.t_words) as widget:
+            widget.delete('1.0', tk.END)
+            for word in self.wordles:
+                if grey_letters.intersection(word):
+                    continue
+                reject = False
+                for i, letter in enumerate(word):
+                    if letter in yellow_letters[i]:
+                        reject = True
+                        break
+                if reject:
+                    continue
+                for i, letter in enumerate(green_letters):
+                    if letter == '.':
+                        continue
+                    if letter != word[i]:
+                        reject = True
+                        break
+                if not reject:
+                    widget.insert(tk.END, word.ljust(6, ' '))
 
     def reset_dewordle(self) -> None:
         self.grey_letters.set('')
@@ -109,17 +146,13 @@ class App(tk.Tk):
         for widget in self.green_letters:
             widget.set('.')
 
-        original_state, self.t_words['state'] = self.t_words['state'], tk.NORMAL
-
-        self.t_words.delete('1.0', tk.END)
-
-        for _ in range(500):
-            word = ''.join(random.sample(SYMBOLS, 5))
-            self.t_words.insert(tk.END, word.ljust(6, ' '))
-
-        self.t_words['state'] = original_state
+        with widget_as_normal(self.t_words) as widget:
+            widget.delete('1.0', tk.END)
 
         self.default_widget.focus()
+
+        with open(WORDLES_FILE) as wf:
+            self.wordles = wf.read().strip().lower().split()
 
     @staticmethod
     def validate_symbols(value: str) -> bool:
