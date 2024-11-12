@@ -153,7 +153,7 @@ class App(tk.Tk):
 
         self.default_widget.focus()
 
-        with open(WORDLES_FILE) as wf:
+        with open(WORDLES_FILE, encoding='utf-8') as wf:
             self.wordles = wf.read().strip().lower().split()
 
     @staticmethod
