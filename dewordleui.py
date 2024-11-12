@@ -2,23 +2,25 @@ import contextlib
 import functools
 import textwrap
 import tkinter as tk
+from collections.abc import Generator
 from tkinter import ttk, scrolledtext, messagebox
-
-SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'
-WORDLES_FILE = 'wordles.txt'
 
 
 @contextlib.contextmanager
-def widget_as_normal(widget):
-    original_state, widget['state'] = widget['state'], tk.NORMAL
-    yield widget
-    widget['state'] = original_state
+def mutable_text_widget(text_widget: tk.Text) -> Generator[tk.Text, None, None]:
+    original_state, text_widget['state'] = text_widget['state'], tk.NORMAL
+    yield text_widget
+    text_widget['state'] = original_state
 
 
 class App(tk.Tk):
+    symbols = 'abcdefghijklmnopqrstuvwxyz'
+    wordles_file = 'wordles.txt'
+    text_font = ('Courier', 11)
+    default_font = ('TkDefaultFont', 11)
+
     def __init__(self, title: str) -> None:
         super().__init__()
-        self.wordles: list[str] = []
 
         self.resizable(width=False, height=False)
         self.title(title)
@@ -37,7 +39,7 @@ class App(tk.Tk):
             self,
             textvariable=self.grey_letters,
             width=30,
-            font=('Courier', 11),
+            font=self.text_font,
             validate='key',
             validatecommand=grey_validator,
             invalidcommand=is_not_valid)
@@ -58,7 +60,7 @@ class App(tk.Tk):
                     f_yellow,
                     width=9,
                     textvariable=self.yellow_letters[i],
-                    font=('Courier', 11),
+                    font=self.text_font,
                     validate='key',
                     validatecommand=yellow_validator,
                     invalidcommand=is_not_valid))
@@ -77,11 +79,11 @@ class App(tk.Tk):
             green_entries.append(
                 ttk.Combobox(
                     f_green,
-                    values=tuple('.' + SYMBOLS),
+                    values=tuple('.' + self.symbols),
                     width=10,
                     state='readonly',
                     textvariable=self.green_letters[i],
-                    font=('Courier', 11)))
+                    font=self.text_font))
             green_entries[i].pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=3, **common_conf)
             green_entries[i].bind(
                 '<<ComboboxSelected>>',
@@ -91,7 +93,7 @@ class App(tk.Tk):
         l_words.pack(side=tk.TOP, **common_conf)
 
         self.t_words = scrolledtext.ScrolledText(
-            self, height=10, width=60, wrap=tk.WORD, font=('Courier', 11), spacing2=4, spacing3=4)
+            self, height=10, width=60, wrap=tk.WORD, font=self.text_font, spacing2=4, spacing3=4)
         self.t_words.pack(fill=tk.X, **common_conf)
         self.t_words['state'] = tk.DISABLED
 
@@ -105,12 +107,15 @@ class App(tk.Tk):
         b_quit.pack(side=tk.LEFT, **common_conf)
 
         rootstyle = ttk.Style(self)
-        rootstyle.configure('TLabel', font=('TkDefaultFont', 11))
-        rootstyle.configure('TButton', font=('TkDefaultFont', 11))
+        rootstyle.configure('TLabel', font=self.default_font)
+        rootstyle.configure('TButton', font=self.default_font)
 
         self.default_widget = e_grey
 
         self.bind('<Return>', self.perform_selection)
+
+        with open(self.wordles_file, encoding='utf-8') as wf:
+            self.wordles = wf.read().strip().lower().split()
 
         self.reset_dewordle()
 
@@ -118,8 +123,8 @@ class App(tk.Tk):
         grey_letters = set(self.grey_letters.get())
         yellow_letters = [set(letters.get()) for letters in self.yellow_letters]
         green_letters = [letter.get() for letter in self.green_letters]
-        with widget_as_normal(self.t_words) as widget:
-            widget.delete('1.0', tk.END)
+        with mutable_text_widget(self.t_words) as text:
+            text.delete('1.0', tk.END)
             for word in self.wordles:
                 if grey_letters.intersection(word):
                     continue
@@ -137,32 +142,28 @@ class App(tk.Tk):
                         reject = True
                         break
                 if not reject:
-                    widget.insert(tk.END, word.ljust(6, ' '))
+                    text.insert(tk.END, word.ljust(6, ' '))
 
     def reset_dewordle(self) -> None:
         self.grey_letters.set('')
 
-        for widget in self.yellow_letters:
-            widget.set('')
+        for var in self.yellow_letters:
+            var.set('')
 
-        for widget in self.green_letters:
-            widget.set('.')
+        for var in self.green_letters:
+            var.set('.')
 
-        with widget_as_normal(self.t_words) as widget:
-            widget.delete('1.0', tk.END)
+        with mutable_text_widget(self.t_words) as text:
+            text.delete('1.0', tk.END)
 
         self.default_widget.focus()
 
-        with open(WORDLES_FILE, encoding='utf-8') as wf:
-            self.wordles = wf.read().strip().lower().split()
-
-    @staticmethod
-    def validate_symbols(value: str) -> bool:
+    def validate_symbols(self, value: str) -> bool:
         chars = set(value)
         if len(chars) != len(value):
             return False
         for c in value:
-            if c not in SYMBOLS:
+            if c not in self.symbols:
                 return False
         return True
 
@@ -193,10 +194,9 @@ class App(tk.Tk):
             self.entry_not_valid()
             self.setvar(widget['textvariable'], '.')
 
-    @staticmethod
-    def entry_not_valid() -> None:
+    def entry_not_valid(self) -> None:
         messagebox.showinfo('Bad Entry', message=textwrap.dedent(f"""
-            You may only enter valid symbols out of the set "{SYMBOLS}".
+            You may only enter valid symbols out of the set "{self.symbols}".
             Every symbol may only appear once.
             Grey letters cannot be used as yellow or green choices at the same time.
         """.strip('\n')))
