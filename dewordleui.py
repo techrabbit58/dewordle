@@ -196,10 +196,10 @@ class App(tk.Tk):
     @staticmethod
     def entry_not_valid() -> None:
         messagebox.showinfo('Bad Entry', message=textwrap.dedent(f"""
-        You may only enter valid symbols out of the set "{SYMBOLS}".
-        Every symbol may only appear once.
-        Grey letters cannot be used as yellow or green choices at the same time.
-        """))
+            You may only enter valid symbols out of the set "{SYMBOLS}".
+            Every symbol may only appear once.
+            Grey letters cannot be used as yellow or green choices at the same time.
+        """.strip('\n')))
 
 
 if __name__ == '__main__':
