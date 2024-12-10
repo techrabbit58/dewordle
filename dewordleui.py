@@ -134,6 +134,7 @@ class App(tk.Tk):
                         reject = True
                         break
                 if reject:
+
                     continue
                 for i, letter in enumerate(green_letters):
                     if letter == '.':
